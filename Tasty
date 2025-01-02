@@ -1,0 +1,65 @@
+import csv
+import requests
+
+# Configuration
+VIRUSTOTAL_API_KEY = ''
+RECORDED_FUTURE_API_KEY = ''
+INPUT_CSV = 'input_hashes.csv'  # Input CSV file with SHA256 hashes
+OUTPUT_CSV = 'responses.csv'  # Output CSV file for URLs and statuses
+
+# Headers for VirusTotal and Recorded Future APIs
+VT_HEADERS = {
+    'x-apikey': VIRUSTOTAL_API_KEY
+}
+RF_HEADERS = {
+    'Authorization': f'Bearer {RECORDED_FUTURE_API_KEY}'
+}
+
+def query_virustotal(hash_value):
+    url = f'https://www.virustotal.com/api/v3/files/{hash_value}/download_url'
+    response = requests.get(url, headers=VT_HEADERS)
+    if response.status_code == 200:
+        try:
+            return response.json().get('data', '')
+        except ValueError:
+            return ''
+    return ''
+
+def submit_to_recorded_future(download_url):
+    url = 'https://sandbox.recordedfuture.com/api/v0/samples'
+    files = {
+        'kind': (None, 'fetch'),
+        'url': (None, download_url)
+    }
+    response = requests.post(url, headers=RF_HEADERS, files=files)
+    return response.status_code == 200
+
+def main():
+    # Read SHA256 hashes from input CSV
+    with open(INPUT_CSV, 'r') as infile:
+        reader = csv.reader(infile)
+        sha256_hashes = [row[0] for row in reader if row]
+
+    # Prepare output CSV
+    with open(OUTPUT_CSV, 'w', newline='') as outfile:
+        writer = csv.writer(outfile)
+        writer.writerow(['SHA256', 'Download URL', 'Submission Status'])
+
+        for hash_value in sha256_hashes:
+            print(f'Processing {hash_value}...')
+
+            # Query VirusTotal API
+            download_url = query_virustotal(hash_value)
+            if not download_url:
+                writer.writerow([hash_value, 'No URL Found', 'Failed'])
+                continue
+
+            # Submit to Recorded Future API
+            success = submit_to_recorded_future(download_url)
+            status = 'Success' if success else 'Failed'
+
+            # Write result to output CSV
+            writer.writerow([hash_value, download_url, status])
+
+if __name__ == '__main__':
+    main()
