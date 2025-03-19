@@ -1,0 +1,26 @@
+let EmailThreats = 
+    EmailEvents
+    | where Timestamp >= ago(30d)
+    | where isnotempty(ThreatClassification) and isnotempty(ThreatName)
+    | project NetworkMessageId, SenderFromAddress, RecipientEmailAddress, Subject, ThreatClassification, ThreatType, ThreatName, Timestamp;
+
+let EmailAttachments = 
+    EmailAttachmentInfo
+    | where Timestamp >= ago(30d)
+    | project NetworkMessageId, AttachmentFileName, AttachmentSHA256, AttachmentSize;
+
+EmailThreats
+| join kind=inner (EmailAttachments) on NetworkMessageId
+| summarize 
+    Sender = any(SenderFromAddress), 
+    Recipient = any(RecipientEmailAddress), 
+    Subject = any(Subject),
+    ThreatClassifications = make_set(ThreatClassification),
+    ThreatTypes = make_set(ThreatType),
+    ThreatNames = make_set(ThreatName),
+    AttachmentNames = make_set(AttachmentFileName), 
+    AttachmentSHA256 = make_set(AttachmentSHA256), 
+    AttachmentSizes = make_set(AttachmentSize),
+    Timestamp = any(Timestamp)
+by NetworkMessageId
+| order by Timestamp desc
