@@ -1,0 +1,17 @@
+rule Automator_Workflow_Generic
+{
+    meta:
+        description = "Detects Automator .wflow files (binary or XML)"
+        author = "ChatGPT"
+    
+    strings:
+        $bplist = "bplist00" ascii
+        $xml_plist = "<plist" ascii
+        $am_build = "AMApplicationBuild" ascii
+        $workflow_meta = "workflowMetaData" ascii
+        $am_version = "AMApplicationVersion" ascii
+    
+    condition:
+        ( $bplist at 0 or $xml_plist in (0..256) )
+        and 2 of ($am_build, $workflow_meta, $am_version)
+}
