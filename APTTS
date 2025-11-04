@@ -1,0 +1,62 @@
++--------------------------------------------------------------------------------+
+|                      THREAT SCENARIO: SERVICE EXECUTION                     |
+|                                  T1570                                      |
++--------------------------------------------------------------------------------+
+|      [APT29/Cozy Bear Logo - Stylized bear with cyber elements]           |
++--------------------------------------------------------------------------------+
+
+## Senior Executives
+Threat actors like APT29 (Cozy Bear) could create persistent backdoors by installing rogue system services that execute their malware whenever systems reboot. This technique allows them to maintain access for months while exfiltrating sensitive documents and emails, potentially causing significant financial loss and reputational damage.
+
+## Middle Management
+APT29 creates malicious services named to mimic legitimate ones (e.g., "MicrosoftUpdate"). They often target under-monitored servers running outdated Windows versions. The modified services typically point to malware binaries in temp directories or system folders, allowing adversaries to evade detection while maintaining access for data exfiltration. Targeted data often includes emails, contracts, and policy documents.
+
+## Technical SMEs
+**Threat Actor**: APT29 (Cozy Bear), Russian intelligence-linked group targeting government and think tanks.
+
+**Malware/Family**: SeaDuke (MiniDuck), custom backdoors, often deployed via service creation.
+
+### Attack Chain
+1. **Reconnaissance (T1087)**
+   - Identify systems with vulnerable services:
+     ```cmd
+     wmic service where "State like 'Stopped'" get Name, PathName
+     ```
+
+2. **Execution (T1570)**
+   - Create new service for persistence:
+     ```cmd
+     sc create "MicrosoftUpdate" binPath="C:\Temp\malware.exe" start= auto
+     sc start "MicrosoftUpdate"
+     ```
+   - Modify existing service:
+     ```cmd
+     reg add "HKLM\SYSTEM\CurrentControlSet\Services\LegitimateService" /v ImagePath /t REG_EXPAND_SZ /d "C:\malware.exe" /f
+     reg add "HKLM\SYSTEM\CurrentControlSet\Services\LegitimateService" /v Start /t REG_DWORD /d 2 /f
+     ```
+
+3. **Persistence**
+   - Service will auto-start on reboot (Start=auto in registry)
+   - Alternatively, create a Scheduled Task that triggers the service
+
+### Detection (DET0492, Analytics: AN1987)
+- **Unusual Service Creation**:
+  - Event ID 7045 (A new service was installed) from unexpected sources
+  - Services with binPath pointing to temp directories or non-standard locations
+- **Service Modifications**:
+  - Registry changes to existing services (Event ID 1308, 1309)
+  - Unexpected services in Task Manager or Process Explorer
+- **Command-line Activity**:
+  - `sc create` commands from non-admin accounts
+  - Reg.exe modifying service-related registry keys
+
+### Mitigations
+- Restrict service creation/modification to dedicated admin accounts only
+- Maintain a whitelist of approved services and monitor for deviations
+- Deploy EDR solutions to detect unusual service creation patterns
+- Regularly audit system services on all endpoints and servers
+
+### References
+- MITRE Group: G0013 (APT29)
+- Technique: T1570
+- Detection Strategies: DET0492 (Service creation), Analytics AN1987 (unusual services)
