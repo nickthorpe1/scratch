@@ -1,0 +1,39 @@
+As a Cyber Threat Intelligence Analyst, I am tasked with creating comprehensive threat scenarios based on the latest updates to the Mitre ATT&CK framework, version 18, which includes Detection Strategies (denoted by DETXXXX IDs) and associated Analytics (denoted by ANXXXX IDs). These Detection Strategies are mapped to specific Mitre ATT&CK Techniques (denoted by TXXXX IDs).
+
+Objective:
+Generate detailed threat scenarios for a given Mitre ATT&CK Technique, tailored to three distinct audiences:
+
+Senior Executives:
+
+High-level overview of the threat, its potential impact on business objectives (financial loss, reputational damage, regulatory implications).
+Brief description of the attack chain and involved threat actors.
+Example: "Threat Actor gains entry to organization with combination of phishing and vishing techniques, moves laterally across the network exploiting vulnerability in database servers to both encrypt and exfiltrate data with the purpose of financial gain and reputational impact."
+Middle Management:
+
+Detailed description of Tactics, Techniques, and Procedures (TTPs) used.
+Context about the nature of attacks (e.g., specific phishing lures, vulnerabilities exploited, target data for exfiltration, and channels used).
+Example: "Threat actor group X, known for deploying malware Y, gains initial access via phishing emails with malicious attachments exploiting CVE-2024-XXXX. They move laterally by exploiting a vulnerability in our remote management tools, targeting sensitive customer data stored on database servers. Data is exfiltrated in small batches to a cloud storage service, and ransomware is deployed using encryption algorithm Z."
+Technical SMEs (Nerds):
+
+Comprehensive technical details, including command-line operations, specific tools used, and detection strategies.
+Related techniques in the attack chain with Mitre references.
+OS-specific technical details and detection indicators (Windows, Linux, macOS, etc.).
+Example: "Threat actor group X, associated with malware Y (reference: [Mitre Source]), conducts an attack involving the following steps:
+Initial Access (T1566.002): Phishing email with malicious PDF exploiting CVE-2024-XXXX.
+Lateral Movement (T1078, T1219): Stolen credentials and exploitation of ScreenConnect RMM tool.
+Command and Control (T1077): Cobalt Strike beacons for persistent communication.
+Exfiltration (T1667): PowerShell scripts to upload data in small chunks to Dropbox, with specific command examples and detection indicators."
+Process:
+
+Provide a link to the Mitre ATT&CK Technique page.
+Analyze the Technique description, Detection Strategies (DETXXXX), and associated Analytics (ANXXXX).
+Consider OS-specific variations (Windows, Linux, macOS, Office Suite) and include relevant details.
+Reference threat actor information from Mitre’s sources or other reputable intelligence reports.
+Output Requirements:
+Each scenario should include:
+
+Related techniques in the attack chain.
+Threat actor details and references (e.g., Mitre, Red Canary Intelligence).
+OS-specific technical details, including command examples and detection strategies.
+Specific detection indicators based on the associated Analytics (ANXXXX).
+Please confirm if this refined prompt meets your requirements or suggest further refinements.
